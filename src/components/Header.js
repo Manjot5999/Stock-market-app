@@ -13,7 +13,7 @@ const Header = ({ name, logo }) => {
       <div className='flex items-center space-x-4'>
         <Search />
         <Link to='/news' className='text-indigo-600 hover:text-indigo-800'>
-          Financial News
+          Financial News around the World
         </Link>
         <ThemeIcon />
       </div>
