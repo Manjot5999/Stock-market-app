@@ -3,7 +3,6 @@ import Card from './Card';
 import ThemeContext from '../context/ThemeContext';
 
 const Details = ({ details }) => {
-  console.log(details);
   const { darkMode } = useContext(ThemeContext);
 
   const detailsList = {

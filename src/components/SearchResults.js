@@ -4,7 +4,6 @@ import ThemeContext from '../context/ThemeContext';
 
 const SearchResults = ({ results }) => {
   const { darkMode } = useContext(ThemeContext);
-  console.log('results', results);
 
   const { setStockSymbol } = useContext(StockContext);
 

@@ -1,19 +1,16 @@
-import React, { useEffect, useState } from "react";
-import Pagination from "./Pagination"; // Import the pagination component
+import { useEffect, useState } from "react";
+import classNames from "classnames";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { getActiveNameFromCSV } from "../utils/helpers/csv-helper";
 
-export default function StockList() {
-  const [data, setData] = useState({
-    topGainers: [],
-    topLosers: [],
-    activelyTraded: [],
-  });
-
-  const [currentPage, setCurrentPage] = useState({
-    topGainers: 1,
-    topLosers: 1,
-    activelyTraded: 1,
-  });
-
+const StockList = () => {
+  const [topGainers, setTopGainers] = useState([]);
+  const [topLosers, setTopLosers] = useState([]);
+  const [date, setDate] = useState("");
+  const [mostActivelyTraded, setMostActivelyTraded] = useState([]);
+  const [activePageTopGainers, setActivePageTopGainers] = useState(1);
+  const [activePageMostActivelyTraded, setActivePageMostActivelyTraded] = useState(1);
+  const [activePageTopLosers, setActivePageTopLosers] = useState(1);
   const itemsPerPage = 5;
 
   const fetchData = async () => {
@@ -22,11 +19,37 @@ export default function StockList() {
         "https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=DX3744UOTZI0MZZ9"
       );
       const apiData = await res.json();
-      setData({
-        topGainers: apiData["top_gainers"],
-        topLosers: apiData["top_losers"],
-        activelyTraded: apiData["most_actively_traded"],
-      });
+      setDate(apiData["last_updated"]);
+      const TopGainersWithNames = [];
+      for (const item of apiData["top_gainers"]) {
+        const name = await getActiveNameFromCSV(item.ticker);
+        TopGainersWithNames.push({
+          ...item,
+          name: name,
+        });
+      }
+
+      const MostActivelyTraded = [];
+      for (const item of apiData["most_actively_traded"]) {
+        const name = await getActiveNameFromCSV(item.ticker);
+        MostActivelyTraded.push({
+          ...item,
+          name: name,
+        });
+      }
+
+      const TopLosersWithNames = [];
+      for (const item of apiData["top_losers"]) {
+        const name = await getActiveNameFromCSV(item.ticker);
+        TopLosersWithNames.push({
+          ...item,
+          name: name,
+        });
+      }
+
+      setTopGainers(TopGainersWithNames);
+      setTopLosers(TopLosersWithNames)
+      setMostActivelyTraded(MostActivelyTraded);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -36,73 +59,87 @@ export default function StockList() {
     fetchData();
   }, []);
 
-  const renderStockTable = (title, stocks, tableKey) => {
-    const startIndex = (currentPage[tableKey] - 1) * itemsPerPage;
+  const renderTable = (title, data, activePage, setActivePage) => {
+    const startIndex = (activePage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-    const currentStocks = stocks.slice(startIndex, endIndex);
+    const currentPageData = data.slice(startIndex, endIndex);
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(i);
+    }
+
 
     return (
-      <div className="mb-8 border rounded p-4">
-        <h2 className="text-lg font-semibold mb-2">{title}</h2>
-        <div className="max-w-full overflow-x-auto">
-          <table className="w-full table-fixed border-collapse">
-            <thead>
+      <div className="text-black text-center p-6">
+        <h1 className="text-2xl font-semibold mb-4">{title} for {date.substr(0,10)}</h1>
+        <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-black">
+            <thead className="bg-blue-400">
               <tr>
-                <th className="w-1/6 px-4 py-2">Ticker</th>
-                <th className="w-1/6 px-4 py-2">Price</th>
-                <th className="w-1/6 px-4 py-2">Change Amount</th>
-                <th className="w-1/6 px-4 py-2">Change Percentage</th>
-                <th className="w-1/6 px-4 py-2">Volume</th>
+                <th className="px-4 py-2 text-left">Name / Symbol</th>
+                <th className="px-4 py-2 text-left">Price</th>
+                <th className="px-4 py-2 text-left">Change Amount</th>
+                <th className="px-4 py-2 text-left">Change Percentage</th>
+                <th className="px-4 py-2 text-left">Volume</th>
               </tr>
             </thead>
             <tbody>
-              {currentStocks.map((stock, index) => (
-                <tr key={index}>
-                  <td className="px-4 py-2">{stock.ticker}</td>
-                  <td className="px-4 py-2">{stock.price}</td>
-                  <td className="px-4 py-2">{stock.change_amount}</td>
-                  <td className="px-4 py-2">{stock.change_percentage}</td>
-                  <td className="px-4 py-2">{stock.volume}</td>
+              {currentPageData.map((item, index) => (
+                <tr
+                  key={index}
+                  className={(index % 2 === 0) ? "bg-gray-100" : "bg-gray-50"}
+                >
+                  <td className="px-4 py-2 text-left">
+                    {item.name} ({item.ticker})
+                  </td>
+                  <td className="px-4 py-2 text-left">${item.price}</td>
+                  <td
+                    className={classNames("px-4 py-2", {
+                      "text-green-500": item.change_amount >= 0,
+                      "text-red-500": item.change_amount < 0,
+                    })}
+                  >
+                    ${item.change_amount}
+                    {item.change_amount >= 0 ? (
+                      <i className="ml-1 fas fa-arrow-up"></i>
+                    ) : (
+                      <i className="ml-1 fas fa-arrow-down"></i>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-left">{item.change_percentage}</td>
+                  <td className="px-4 py-2 text-left">{item.volume}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <Pagination
-          currentPage={currentPage[tableKey]}
-          totalPages={Math.ceil(stocks.length / itemsPerPage)}
-          onPageChange={(page) => handlePageChange(page, tableKey)}
-        />
+        <div className="flex justify-center mt-4">
+          {pageNumbers.map((pageNumber) => (
+            <button
+              key={pageNumber}
+              className={classNames("px-2 py-1 mx-1", {
+                "bg-blue-500 text-white rounded": pageNumber === activePage,
+                "bg-gray-300 text-gray-800 rounded": pageNumber !== activePage,
+              })}
+              onClick={() => setActivePage(pageNumber)}
+            >
+              {pageNumber}
+            </button>
+          ))}
+        </div>
       </div>
     );
   };
 
-  const handlePageChange = (page, tableKey) => {
-    setCurrentPage((prev) => ({
-      ...prev,
-      [tableKey]: page,
-    }));
-  };
-
   return (
-    <div className="bg-gray-900 text-white text-center p-6">
-      <h1 className="text-2xl font-semibold mb-4">
-        Cryptocurrency Prices by Market Cap
-      </h1>
-      <div className="flex flex-wrap space-x-4">
-        <div className="w-full md:w-1/3 mb-4">
-          {data.topGainers &&
-            renderStockTable("Top Gainers", data.topGainers, "topGainers")}
-        </div>
-        <div className="w-full md:w-1/3 mb-4">
-          {data.topLosers &&
-            renderStockTable("Top Losers", data.topLosers, "topLosers")}
-        </div>
-        <div className="w-full md:w-1/3 mb-4">
-          {data.activelyTraded &&
-            renderStockTable("Actively Traded", data.activelyTraded, "activelyTraded")}
-        </div>
-      </div>
-    </div>
+    <>
+        {renderTable("Most Actively Traded", mostActivelyTraded, activePageMostActivelyTraded, setActivePageMostActivelyTraded)}
+        {renderTable("Top Gainers", topGainers, activePageTopGainers, setActivePageTopGainers)}
+        {renderTable("Top Losers", topLosers, activePageTopLosers, setActivePageTopLosers)}
+    </>
   );
-}
+};
+
+export default StockList;

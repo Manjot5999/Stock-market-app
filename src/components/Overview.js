@@ -1,7 +1,7 @@
 import React from 'react';
 import Card from './Card';
 
-const Overview = ({ symbol, price, change, changePercent, currency }) => {
+const Overview = ({ symbol, price, change, changePercent, currency, onAddToWishlist }) => {
   return (
     <Card className='bg-white shadow-md'>
       <span className='absolute left-4 top-4 text-neutral-400 text-xl 2xl:text-2xl'>
@@ -21,6 +21,12 @@ const Overview = ({ symbol, price, change, changePercent, currency }) => {
         >
           {change} <span>({changePercent}%)</span>
         </span>
+        <button
+          className='text-sm xl:text-base 2xl:text-lg text-blue-500 hover:underline focus:outline-none'
+          onClick={onAddToWishlist}
+        >
+          Add to Wishlist
+        </button>
       </div>
     </Card>
   );
