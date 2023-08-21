@@ -28,6 +28,8 @@ const Chart = () => {
 
   const [data, setData] = useState([]);
 
+
+
   const formatData = (data) => {
     return data.c.map((item, index) => {
       return {

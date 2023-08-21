@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react';
 import { Link,useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../context/UserAuthContext';
 import { db } from '../Firebase/Firebase-app';
-import { getDocs,collection, doc } from 'firebase/firestore';
+import { getDocs,collection } from 'firebase/firestore';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -28,7 +28,6 @@ const Login = () => {
         ...doc.data(),
       }))
 
-      console.log(userData)
 
       userData.forEach((item)=>{
         if(item.Email===email){

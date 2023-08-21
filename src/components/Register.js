@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../context/UserAuthContext';
-
+import { useDispatch } from 'react-redux';
+import { auth } from '../Firebase/Firebase-app';
+import { addItemAsync } from './wishlistSlice';
 
 const Register = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const {signUp}=useUserAuth()
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
 
   const handleSubmit = async(e) => {
     e.preventDefault();
     // Add your registration logic here
     try {
       await signUp(email, password);
+      dispatch(addItemAsync({
+        "Email":email,
+        'Wishlist':[],
+      }))
       console.log('User registered successfully');
-      // navigate("/");
+      navigate("/login");
     } catch (err) {
       console.error('Registration error:', err);
       // setError(err.message);

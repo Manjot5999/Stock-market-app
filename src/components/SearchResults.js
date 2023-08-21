@@ -1,11 +1,15 @@
 import React, { useContext } from 'react';
 import StockContext from '../context/StockContext';
 import ThemeContext from '../context/ThemeContext';
+import { useNavigate } from 'react-router-dom';
 
-const SearchResults = ({ results }) => {
+const SearchResults = ({ results,clear }) => {
+
   const { darkMode } = useContext(ThemeContext);
 
   const { setStockSymbol } = useContext(StockContext);
+
+  const navigate=useNavigate()
 
   return (
     <ul
@@ -22,10 +26,14 @@ const SearchResults = ({ results }) => {
             className={`cursor-pointer p-4 m-2 flex items-center justify-between rounded-md ${
               darkMode ? 'hover:bg-indigo-600' : 'hover:bg-indigo-200 '
             } transition duration-300`}
-            onClick={() => setStockSymbol(item.symbol)}
+            onClick={() => {
+              setStockSymbol(item['1. symbol'])
+              clear()
+              navigate(`/${item['1. symbol']}`)
+            }}
           >
-            <span>{item.symbol}</span>
-            <span>{item.description}</span>
+            <span>{item['1. symbol']}</span>
+            <span>{item['2. name']}</span>
           </li>
         );
       })}
