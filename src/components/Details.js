@@ -3,6 +3,8 @@ import ThemeContext from '../context/ThemeContext';
 import {useDispatch,useSelector} from 'react-redux'
 import {updateItemasync } from './wishlistSlice';
 import { useUserAuth } from '../context/UserAuthContext';
+import { useNavigate } from 'react-router-dom';
+import AlertBox from './AlertBox';
 
 
 const Details = ({ details }) => {
@@ -13,17 +15,37 @@ const Details = ({ details }) => {
 
   const dispatch=useDispatch()
   const store=useSelector(store=>store.cart.items)
+  const navigate=useNavigate()
 
-  const userInfo= store.filter((item)=>(item.Email.toLowerCase()===user.email.toLowerCase()))
-  const id=userInfo[0].id
-  const WishList=userInfo[0].Wishlist
-  
-  const addToWatchlist=()=>{
-    const updatedWishlist=[...WishList,{name:details.name,symbol:details.ticker}]
-    dispatch(updateItemasync(id,{
-      'Wishlist':updatedWishlist
-    }))
+  let id = null
+  let WishList=null
+  console.log('store',store)
+
+  if(user){
+    const userInfo= store.filter((item)=>(item.Email.toLowerCase()===user.email.toLowerCase()))
+    console.log('userInfo',userInfo)
+    id=userInfo[0].id
+    WishList=userInfo[0].Wishlist
   }
+
+  
+  const addToWatchlist = () => {
+    if (user) {
+      const stockToAdd = { name: details.name, symbol: details.ticker, logo: details.logo };
+      const isStockAlreadyAdded = WishList.some(item => item.symbol === stockToAdd.symbol);
+  
+      if (!isStockAlreadyAdded) {
+        const updatedWishlist = [...WishList, stockToAdd];
+        dispatch(updateItemasync(id, { Wishlist: updatedWishlist }));
+      } else {
+        alert('Stock is already in your watchlist.');
+      }
+    } else {
+      alert('Need to Login first');
+      navigate('/login');
+    }
+  };
+  
 
   const detailsList = {
     ticker:'Symbol',

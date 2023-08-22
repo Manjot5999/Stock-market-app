@@ -4,18 +4,29 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { getActiveNameFromCSV } from "../utils/helpers/csv-helper";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import StockCarousel from "./Carousel";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAndInitializeState } from "./wishlistSlice";
+import ShimmerTable from "./Shimmer";
+import ShimmerCarousel from "./ShimmerCarousel";
 
 
 const StockList = () => {
   const [topGainers, setTopGainers] = useState([]);
   const [topLosers, setTopLosers] = useState([]);
+  const dispatch=useDispatch()
   const [date, setDate] = useState("");
   const [mostActivelyTraded, setMostActivelyTraded] = useState([]);
   const [activePageTopGainers, setActivePageTopGainers] = useState(1);
   const [activePageMostActivelyTraded, setActivePageMostActivelyTraded] = useState(1);
   const [activePageTopLosers, setActivePageTopLosers] = useState(1);
   const itemsPerPage = 5;
-  // const store=useSelector(store=>store.cart.items)
+
+  useEffect(()=>{
+    dispatch(fetchAndInitializeState())
+  },[dispatch])
+
+  const store=useSelector(store=>store.cart.items)
+  console.log(store)
 
   const fetchData = async () => {
     try {
@@ -24,7 +35,6 @@ const StockList = () => {
       );
       const apiData = await res.json();
       setDate(apiData["last_updated"]);
-      console.log(apiData["last_updated"])
       const TopGainersWithNames = [];
       for (const item of apiData["top_gainers"]) {
         const name = await getActiveNameFromCSV(item.ticker);
@@ -142,10 +152,25 @@ const StockList = () => {
 
   return (
     <>
-        <StockCarousel stockData={mostActivelyTraded}/>
-        {/* {renderTable("Most Actively Traded", mostActivelyTraded, activePageMostActivelyTraded, setActivePageMostActivelyTraded)} */}
-        {renderTable("Top Gainers", topGainers, activePageTopGainers, setActivePageTopGainers)}
-        {renderTable("Top Losers", topLosers, activePageTopLosers, setActivePageTopLosers)}
+
+      {
+        mostActivelyTraded.length===0 ? (
+          <ShimmerCarousel /> 
+        ) :(
+
+          <StockCarousel stockData={mostActivelyTraded}/>
+        )
+      }
+        {topGainers.length === 0 ? (
+          <ShimmerTable/> // Display shimmer while data is loading
+        ) : (
+          renderTable("Top Gainers", topGainers, activePageTopGainers, setActivePageTopGainers)
+        )}
+        {topLosers.length === 0 ? (
+          <ShimmerTable /> // Display shimmer while data is loading
+        ) : (
+          renderTable("Top Losers", topLosers, activePageTopLosers, setActivePageTopLosers)
+        )}
     </>
   );
 };

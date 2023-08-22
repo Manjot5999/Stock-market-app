@@ -9,6 +9,7 @@ import { useUserAuth } from '../context/UserAuthContext';
 import { db } from '../Firebase/Firebase-app';
 import { getDocs,collection, doc,updateDoc } from 'firebase/firestore';
 import { getActiveNameFromCSV } from '../utils/helpers/csv-helper';
+import { useSelector } from 'react-redux';
 
 
 
@@ -24,6 +25,9 @@ const Dashboard = () => {
   const userCollection=collection(db,'UserId')
 
   const {user}=useUserAuth()
+
+  const store=useSelector(store=>store.cart.items)
+  console.log(store)
 
 
 
