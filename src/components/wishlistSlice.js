@@ -38,7 +38,6 @@ export const { addItem, clearCart, removeItem, updateItem, initializeState } = c
 
 // Create the thunk action that fetches user data and initializes the state
 export const fetchAndInitializeState = () => async (dispatch) => {
-  console.log('ppppp')
   try {
     const userCollection=collection(db,'UserId')
     const data = await getDocs(userCollection);
@@ -46,7 +45,7 @@ export const fetchAndInitializeState = () => async (dispatch) => {
       ...doc.data(),
       id: doc.id
     }));
-
+    console.log(userData)
     dispatch(initializeState(userData));
   } catch (error) {
     console.error("Error fetching user data:", error);

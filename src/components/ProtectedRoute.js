@@ -14,7 +14,6 @@ const ProtectedRoute = ({ children }) => {
   }, [user, navigate])
 
   if (user) {
-    console.log('llllll')
     return children
   } else {
     return null; // or a loading component, or some other UI

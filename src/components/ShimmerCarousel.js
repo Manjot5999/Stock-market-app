@@ -5,7 +5,9 @@ const ShimmerCarousel = () => {
   const chunkedStockData=[1,2,3,4]
 
   return (
+    <>
     <div className="bg-gray-100 p-4 rounded-lg shadow-md ">
+        
       <h2 className="text-xl font-semibold mb-4 text-center">Most Actively Traded Stocks</h2>
       <div  className="flex justify-center">
         {chunkedStockData.map((chunk, pageIndex) => (
@@ -15,7 +17,7 @@ const ShimmerCarousel = () => {
         ))}
           </div>
     </div>
-    
+    </>
   );
 };
 

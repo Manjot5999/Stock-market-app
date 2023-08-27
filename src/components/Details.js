@@ -16,6 +16,7 @@ const Details = ({ details }) => {
   const dispatch=useDispatch()
   const store=useSelector(store=>store.cart.items)
   const navigate=useNavigate()
+  
 
   let id = null
   let WishList=null

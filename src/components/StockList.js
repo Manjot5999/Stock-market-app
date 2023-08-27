@@ -4,10 +4,11 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { getActiveNameFromCSV } from "../utils/helpers/csv-helper";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import StockCarousel from "./Carousel";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchAndInitializeState } from "./wishlistSlice";
 import ShimmerTable from "./Shimmer";
 import ShimmerCarousel from "./ShimmerCarousel";
+import Info from "./Info";
 
 
 const StockList = () => {
@@ -17,7 +18,6 @@ const StockList = () => {
   const [date, setDate] = useState("");
   const [mostActivelyTraded, setMostActivelyTraded] = useState([]);
   const [activePageTopGainers, setActivePageTopGainers] = useState(1);
-  const [activePageMostActivelyTraded, setActivePageMostActivelyTraded] = useState(1);
   const [activePageTopLosers, setActivePageTopLosers] = useState(1);
   const itemsPerPage = 5;
 
@@ -25,17 +25,22 @@ const StockList = () => {
     dispatch(fetchAndInitializeState())
   },[dispatch])
 
-  const store=useSelector(store=>store.cart.items)
-  console.log(store)
 
   const fetchData = async () => {
+
+
+    const TopGainersWithNames = [];
+    const MostActivelyTradedWithNames = [];
+    const TopLosersWithNames = [];
+
+
     try {
       const res = await fetch(
         "https://www.alphavantage.co/query?function=TOP_GAINERS_LOSERS&apikey=LD66HKCHONZVJZTR"
       );
       const apiData = await res.json();
       setDate(apiData["last_updated"]);
-      const TopGainersWithNames = [];
+
       for (const item of apiData["top_gainers"]) {
         const name = await getActiveNameFromCSV(item.ticker);
         TopGainersWithNames.push({
@@ -44,7 +49,6 @@ const StockList = () => {
         });
       }
 
-      const MostActivelyTradedWithNames = [];
       for (const item of apiData["most_actively_traded"]) {
         const name = await getActiveNameFromCSV(item.ticker);
         MostActivelyTradedWithNames.push({
@@ -53,7 +57,6 @@ const StockList = () => {
         });
       }
 
-      const TopLosersWithNames = [];
       for (const item of apiData["top_losers"]) {
         const name = await getActiveNameFromCSV(item.ticker);
         TopLosersWithNames.push({
@@ -153,12 +156,16 @@ const StockList = () => {
   return (
     <>
 
+    <Info />
+
+      <div id='content-section'>
+
       {
         mostActivelyTraded.length===0 ? (
           <ShimmerCarousel /> 
         ) :(
 
-          <StockCarousel stockData={mostActivelyTraded}/>
+          <StockCarousel stockData={mostActivelyTraded} date={date}/>
         )
       }
         {topGainers.length === 0 ? (
@@ -171,6 +178,8 @@ const StockList = () => {
         ) : (
           renderTable("Top Losers", topLosers, activePageTopLosers, setActivePageTopLosers)
         )}
+      </div>
+
     </>
   );
 };

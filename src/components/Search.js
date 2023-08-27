@@ -22,7 +22,6 @@ const Search = () => {
         const searchResults = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${input}&apikey=DX3744UOTZI0MZZ9`);
         const result = await searchResults.json();
         const data=result.bestMatches
-        console.log(data)
         setBestMatches(data);
     } catch (error) {
       setBestMatches([]);

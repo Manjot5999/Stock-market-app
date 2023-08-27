@@ -4,7 +4,8 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css';
 import { useNavigate } from 'react-router-dom';
 import StockContext from '../context/StockContext';
 
-const StockCarousel = ({ stockData }) => {
+const StockCarousel = ({ stockData,date }) => {
+  
 
   const chunkSize = 4; // Number of items per page
 
@@ -19,7 +20,7 @@ const StockCarousel = ({ stockData }) => {
 
   return (
     <div className="bg-gray-100 p-4 rounded-lg shadow-md ">
-      <h2 className="text-xl font-semibold mb-4 text-center">Most Actively Traded Stocks</h2>
+      <h2 className="text-xl font-semibold mb-4 text-center">Most Actively Traded Stocks for {date.substr(0,10)}</h2>
       <Carousel autoPlay={true} interval={5000} infiniteLoop={true} showStatus={true} showThumbs={false}>
         {chunkedStockData.map((chunk, pageIndex) => (
           <div key={pageIndex} className="flex justify-center">
