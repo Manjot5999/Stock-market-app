@@ -29,6 +29,7 @@ const cartSlice = createSlice({
       state.items.pop();
     },
     initializeState: (state, action) => {
+      console.log('hello')
       state.items = action.payload;
     },
   },
@@ -45,7 +46,6 @@ export const fetchAndInitializeState = () => async (dispatch) => {
       ...doc.data(),
       id: doc.id
     }));
-    console.log(userData)
     dispatch(initializeState(userData));
   } catch (error) {
     console.error("Error fetching user data:", error);

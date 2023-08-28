@@ -3,24 +3,27 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from "react-router-dom";
 import { fetchAndInitializeState } from "./wishlistSlice";
+import { useUserAuth } from "../context/UserAuthContext";
+
 
 const WatchList = () => {
   const [userData, setUserData] = useState([]);
-  const store = useSelector(store => store.cart.items);
+  const store = useSelector((store) => store.cart.items);
   const navigate = useNavigate();
-
+  const {user}=useUserAuth()
+  const dispatch=useDispatch()
   
+ 
+
   useEffect(() => {
-    let isMounted = true;
+    // Dispatch the fetchAndInitializeState thunk action when the component mounts
+    dispatch(fetchAndInitializeState());
+  }, []);
 
-    if (isMounted) {
-      setUserData(store[0].Wishlist);
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [store]);
+  useEffect(() => {
+    const data = store.filter((item) => item.Email === user.email);
+    setUserData(data[0]?.Wishlist || []); // Set to an empty array if data is not available
+  }, [store, user]);
 
   const handleCompanyNewsClick = (symbol) => {
     // Implement your logic here to handle the click event for company news
@@ -28,7 +31,11 @@ const WatchList = () => {
     console.log(`Clicked to watch news for ${symbol}`);
   };
 
+  console.log('userData',userData)
+
+  
   return (
+    
     <div className="container">
       <h1 className="text-2xl font-semibold mb-4">Watchlist</h1>
       <div className="grid grid-cols-2 gap-4">

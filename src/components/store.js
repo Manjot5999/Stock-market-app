@@ -9,6 +9,7 @@ const store = configureStore({
   middleware: [thunk] // Add redux-thunk middleware
 });
 
+
 // Dispatch the fetchAndInitializeState thunk action when the store is created
 store.dispatch(fetchAndInitializeState());
 
