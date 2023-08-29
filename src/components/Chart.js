@@ -62,6 +62,7 @@ const Chart = () => {
           endTimestampUnix
         );
         setData(formatData(result));
+        console.log(data)
       } catch (error) {
         setData([]);
         console.log(error);

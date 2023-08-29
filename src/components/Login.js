@@ -1,61 +1,56 @@
-import React, { useState,useEffect } from 'react';
-import { Link,useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUserAuth } from '../context/UserAuthContext';
 import { db } from '../Firebase/Firebase-app';
-import { getDocs,collection } from 'firebase/firestore';
+import { getDocs, collection } from 'firebase/firestore';
+import { ClipLoader } from 'react-spinners';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const {logIn}=useUserAuth()
-  const navigate=useNavigate()
-  const userCollection=collection(db,'UserId')
-  
+  const [isLoading, setLoading] = useState(false);
+  const { logIn } = useUserAuth();
+  const navigate = useNavigate();
+  const userCollection = collection(db, 'UserId');
 
-  // Load user email from local storage if "Remember me" is checked
   useEffect(() => {
     const savedEmail = localStorage.getItem('userEmail');
     if (savedEmail) {
       setEmail(savedEmail);
-      setRememberMe(true); // Automatically check the "Remember me" checkbox
+      setRememberMe(true);
     }
 
-
-    const getUserData=async()=>{
-      const data=await getDocs(userCollection)
-      const userData=await data.docs.map((doc)=>({
+    const getUserData = async () => {
+      const data = await getDocs(userCollection);
+      const userData = await data.docs.map((doc) => ({
         ...doc.data(),
-      }))
+      }));
 
-
-      userData.forEach((item)=>{
-        if(item.Email===email){
-          console.log(email)
+      userData.forEach((item) => {
+        if (item.Email === email) {
+          console.log(email);
         }
-      })
-      
-    }
-    getUserData()
-    
-
-
+      });
+    };
+    getUserData();
   }, []);
 
-
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your login logic here
-    rememberMe ? localStorage.setItem('userEmail',email):localStorage.removeItem('userEmail')
+    setLoading(true);
+
+    rememberMe ? localStorage.setItem('userEmail', email) : localStorage.removeItem('userEmail');
     try {
       await logIn(email, password);
       console.log('User login successfully');
-      navigate("/");
+      navigate('/');
     } catch (err) {
-      alert(err.message)
+      alert(err.message);
       console.error('Registration error:', err);
-      // setError(err.message);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -106,8 +101,9 @@ const Login = () => {
               <button
                 type="submit"
                 className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:ring focus:ring-blue-200 w-full"
+                disabled={isLoading}
               >
-                Login
+                {isLoading ? <ClipLoader size={18} color="white" /> : 'Login'}
               </button>
             </div>
             <div className="text-center">
@@ -124,4 +120,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;

@@ -8,8 +8,8 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     if (!user) {
-      alert('You need to login first')
       navigate('/login')
+      alert('You need to login to have your personal Watchlist')
     }
   }, [user, navigate])
 

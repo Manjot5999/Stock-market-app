@@ -4,30 +4,34 @@ import { useUserAuth } from '../context/UserAuthContext';
 import { useDispatch } from 'react-redux';
 import { auth } from '../Firebase/Firebase-app';
 import { addItemAsync } from './wishlistSlice';
+import { ClipLoader } from 'react-spinners';
 
 const Register = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const {signUp}=useUserAuth()
-  const dispatch=useDispatch()
-  const navigate=useNavigate()
+  const { signUp } = useUserAuth();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isLoading, setLoading] = useState(false);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add your registration logic here
+    setLoading(true);
+
     try {
       await signUp(email, password);
       dispatch(addItemAsync({
-        "Email":email,
-        'Wishlist':[],
-      }))
+        "Email": email,
+        'Wishlist': [],
+      }));
       console.log('User registered successfully');
       navigate("/login");
     } catch (err) {
       console.error('Registration error:', err);
-      // setError(err.message);
     }
+
+    setLoading(false);
   };
 
   return (
@@ -37,9 +41,6 @@ const Register = () => {
           <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
               <input
                 type="text"
                 id="fullName"
@@ -50,9 +51,6 @@ const Register = () => {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
               <input
                 type="email"
                 id="email"
@@ -63,9 +61,6 @@ const Register = () => {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
               <input
                 type="password"
                 id="password"
@@ -79,8 +74,9 @@ const Register = () => {
               <button
                 type="submit"
                 className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:ring focus:ring-blue-200 w-full"
+                disabled={isLoading}
               >
-                Register
+                {isLoading ? <ClipLoader size={18} color="white" /> : 'Register'}
               </button>
             </div>
             <div className="text-center">

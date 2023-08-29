@@ -13,9 +13,21 @@ export const convertDateToUnixTimestamp = (date) => {
  * @returns {string} The corresponding Date Object formatted as a string
  */
 export const convertUnixTimestampToDate = (unixTimestamp) => {
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+
   const milliseconds = unixTimestamp * 1000;
-  return new Date(milliseconds).toLocaleDateString();
+  const date = new Date(milliseconds);
+
+  const day = date.getDate();
+  const monthIndex = date.getMonth();
+  const month = months[monthIndex];
+
+  return `${day} ${month}`;
 };
+
 
 /**
  * Creates a new date by adding days/weeks/months/years to a given date. Negative values will also work (for past dates)

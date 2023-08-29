@@ -96,7 +96,7 @@ const StockList = () => {
         <table className="w-full border-collapse text-black">
             <thead className="bg-indigo-600">
               <tr>
-                <th className="px-4 py-2 text-left text-white">Name / Symbol</th>
+                <th className="px-4 py-2 text-left text-white"> Symbol</th>
                 <th className="px-4 py-2 text-left text-white">Price</th>
                 <th className="px-4 py-2 text-left text-white">Change Amount</th>
                 <th className="px-4 py-2 text-left text-white">Change Percentage</th>
@@ -110,7 +110,7 @@ const StockList = () => {
                   className={(index % 2 === 0) ? "bg-gray-100" : "bg-gray-50"}
                 >
                   <td className="px-4 py-2 text-left">
-                    {item.name} ({item.ticker})
+                     ({item.ticker})
                   </td>
                   <td className="px-4 py-2 text-left">${item.price}</td>
                   <td
