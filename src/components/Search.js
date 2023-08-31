@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import ThemeContext from '../context/ThemeContext';
-import { searchSymbol } from '../utils/api/stock-api';
 import SearchResults from './SearchResults';
 import { SearchIcon, XIcon } from '@heroicons/react/solid';
 import StockContext from '../context/StockContext';
@@ -8,33 +7,52 @@ import { useNavigate } from 'react-router-dom';
 
 const Search = () => {
   const { darkMode } = useContext(ThemeContext);
+  const { setStockSymbol } = useContext(StockContext);
+  const navigate = useNavigate();
 
   const [input, setInput] = useState('');
   const [bestMatches, setBestMatches] = useState([]);
+  const [debouncedInput, setDebouncedInput] = useState('');
 
-  const {setStockSymbol}=useContext(StockContext)
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      setDebouncedInput(input);
+    }, 300); // Adjust the debounce delay as needed (in milliseconds)
 
-  const navigate=useNavigate()
-  
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [input]);
+
+  useEffect(() => {
+    if (debouncedInput) {
+      updateBestMatches();
+    }
+  }, [debouncedInput]);
 
   const updateBestMatches = async () => {
-    try {    
-        const searchResults = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${input}&apikey=DX3744UOTZI0MZZ9`);
-        const result = await searchResults.json();
-        const data=result.bestMatches
-        setBestMatches(data);
+    try {
+      const searchResults = await fetch(`https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=${debouncedInput}&apikey=DX3744UOTZI0MZZ9`);
+      const result = await searchResults.json();
+      const data = result.bestMatches;
+      setBestMatches(data);
     } catch (error) {
       setBestMatches([]);
       console.log(error);
     }
   };
 
-  const handleSubmit= async()=>{
-    setStockSymbol(input)
-    clear()
-    navigate(`/${input}`)
-  }
-
+  const handleSubmit = async () => {
+    if (bestMatches.length === 0) {
+      alert('No Stock found ');
+      clear();
+    } else {
+      const symbol = bestMatches.filter(item => item['4. region'] === 'United States');
+      setStockSymbol(symbol[0]['1. symbol']);
+      clear();
+      navigate(`/${symbol[0]['1. symbol']}`);
+    }
+  };
 
   const clear = () => {
     setInput('');
@@ -54,12 +72,7 @@ const Search = () => {
           darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-neutral-700'
         }`}
         placeholder='Search stock...'
-        onChange={(event) => setInput(event.target.value)}
-        onKeyPress={(event) => {
-          if (event.key === 'Enter') {
-            updateBestMatches();
-          }
-        }}
+        onChange={event => setInput(event.target.value)}
       />
       {input && (
         <button onClick={clear} className='m-1'>
@@ -72,11 +85,7 @@ const Search = () => {
       >
         <SearchIcon className='h-4 w-4 text-white' />
       </button>
-      {bestMatches.length > 0
-        ? (
-          <SearchResults results={bestMatches} clear={clear} />
-          )
-        : null}
+      {bestMatches.length > 0 ? <SearchResults results={bestMatches} clear={clear} /> : null}
     </div>
   );
 };
