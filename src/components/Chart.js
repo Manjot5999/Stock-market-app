@@ -10,67 +10,93 @@ import {
   Tooltip
 } from 'recharts';
 import ThemeContext from '../context/ThemeContext';
-import StockContext from '../context/StockContext';
-import { fetchHistoricalData } from '../utils/api/stock-api';
-import {
-  createDate,
-  convertDateToUnixTimestamp,
-  convertUnixTimestampToDate
-} from '../utils/helpers/date-helper';
+import { fetchData } from '../utils/api/stock-api';
+
 import { chartConfig } from '../constants/config';
+import { useParams } from 'react-router-dom';
 
 const Chart = () => {
   const [filter, setFilter] = useState('1W');
 
   const { darkMode } = useContext(ThemeContext);
 
-  const { stockSymbol } = useContext(StockContext);
+  const { symbol } = useParams();
 
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({
+    dailyData: [],
+    weeklyData: [],
+    monthlyData: []
+  });
 
-
-
-  const formatData = (data) => {
-    return data.c.map((item, index) => {
-      return {
-        value: item.toFixed(2),
-        date: convertUnixTimestampToDate(data.t[index])
-      };
-    });
-  };
-
-  useEffect(() => {
-    const getDateRange = () => {
-      const { days, weeks, months, years } = chartConfig[filter];
-
-      const endDate = new Date();
-      const startDate = createDate(endDate, -days, -weeks, -months, -years);
-
-      const startTimestampUnix = convertDateToUnixTimestamp(startDate);
-      const endTimestampUnix = convertDateToUnixTimestamp(endDate);
-      return { startTimestampUnix, endTimestampUnix };
+  async function getData (params) {
+    const res = await fetchData(params);
+    let count = 0;
+    const lastFiveEntries = [];
+    const category = {
+      '1D': '60min',
+      '1W': 'Daily',
+      '1M': 'Monthly'
     };
-
-    const updateChartData = async () => {
-      try {
-        const { startTimestampUnix, endTimestampUnix } = getDateRange();
-        const resolution = chartConfig[filter].resolution;
-        const result = await fetchHistoricalData(
-          stockSymbol,
-          resolution,
-          startTimestampUnix,
-          endTimestampUnix
-        );
-        setData(formatData(result));
-        console.log(data)
-      } catch (error) {
-        setData([]);
-        console.log(error);
+    const obj = filter === '1M' ? res['Monthly Time Series'] : res[`Time Series (${category[filter]})`];
+    for (const key in obj) {
+      if (count >= 5) {
+        break; // We only want the last five entries.
       }
-    };
-
-    updateChartData();
-  }, [stockSymbol, filter]);
+      lastFiveEntries.push({
+        date: filter === '1D' ? key.substring(11, 19) : key,
+        value: obj[key]['4. close']
+      });
+      count++;
+    }
+    console.log(lastFiveEntries);
+    console.log(filter);
+    if (filter === '1D') {
+      setData({
+        dailyData: lastFiveEntries,
+        monthlyData: [],
+        weeklyData: []
+      });
+    } else if (filter === '1W') {
+      setData({
+        dailyData: [],
+        monthlyData: [],
+        weeklyData: lastFiveEntries
+      });
+    } else {
+      setData({
+        dailyData: [],
+        monthlyData: lastFiveEntries,
+        weeklyData: []
+      });
+    }
+  }
+  useEffect(() => {
+    let params;
+    if (filter === '1D') {
+      params = {
+        interval: '60min',
+        function: 'TIME_SERIES_INTRADAY',
+        symbol,
+        datatype: 'json',
+        output_size: 'compact'
+      };
+      getData(params);
+    } else if (filter === '1W') {
+      params = {
+        function: 'TIME_SERIES_DAILY',
+        symbol,
+        datatype: 'json'
+      };
+      getData(params);
+    } else {
+      params = {
+        function: 'TIME_SERIES_MONTHLY',
+        symbol,
+        datatype: 'json'
+      };
+      getData(params);
+    }
+  }, [filter, symbol]);
 
   return (
     <Card>
@@ -87,24 +113,16 @@ const Chart = () => {
           </li>
         ))}
       </ul>
-      <ResponsiveContainer>
-        <AreaChart data={data}>
+      <ResponsiveContainer width='100%' height={400}>
+        <AreaChart data={(filter === '1D' && data.dailyData) || (filter === '1W' && data.weeklyData) || (filter === '1M' && data.monthlyData)}>
           <defs>
             <linearGradient id='chartColor' x1='0' y1='0' x2='0' y2='1'>
-              <stop
-                offset='5%'
-                stopColor={darkMode ? '#312e81' : 'rgb(199 210 254)'}
-                stopOpacity={0.8}
-              />
-              <stop
-                offset='95%'
-                stopColor={darkMode ? '#312e81' : 'rgb(199 210 254)'}
-                stopOpacity={0}
-              />
+              <stop offset='5%' stopColor={darkMode ? '#312e81' : 'rgb(199, 210, 254)'} stopOpacity={0.8} />
+              <stop offset='95%' stopColor={darkMode ? '#312e81' : 'rgb(199, 210, 254)'} stopOpacity={0} />
             </linearGradient>
           </defs>
           <Tooltip
-            contentStyle={darkMode ? { backgroundColor: '#111827' } : null}
+            contentStyle={darkMode ? { backgroundColor: '#111827', border: '1px solid #818cf8' } : null}
             itemStyle={darkMode ? { color: '#818cf8' } : null}
           />
           <Area
@@ -115,8 +133,13 @@ const Chart = () => {
             fillOpacity={1}
             strokeWidth={0.5}
           />
-          <XAxis dataKey='date' />
-          <YAxis domain={['dataMin', 'dataMax']} />
+          <XAxis dataKey='date' tick={{ fontSize: 12 }} />
+          <YAxis
+            domain={['dataMin', 'dataMax']}
+            tick={{ fontSize: 12 }}
+            tickFormatter={(value) => `$${value}`}
+            allowDataOverflow
+          />
         </AreaChart>
       </ResponsiveContainer>
     </Card>

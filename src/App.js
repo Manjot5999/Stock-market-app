@@ -23,27 +23,27 @@ function App () {
   return (
     <Provider store={store}>
 
-    <UserAuthContextProvider>
+      <UserAuthContextProvider>
 
-    <Router>
-      <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
-        <StockContext.Provider value={{ stockSymbol, setStockSymbol }}>
-          <Routes>
-            <Route path='/' element={<HomeScreen />}>
-              <Route path='/' element={<StockList />} />
-              <Route path='/news' element={<News />} />
-              <Route path='/:symbol' element={<Dashboard />} />
-              <Route path='/news/:symbol' element={<CompanyNews />} />
-              <Route path='/watchlist' element={<ProtectedRoute><WatchList /></ProtectedRoute>} />
-            </Route>
-              <Route path='/login' element={<LoginForm />} />
-              <Route path='/register' element={<Register />} />
-            {/* Define your routes */}
-          </Routes>
-        </StockContext.Provider>
-      </ThemeContext.Provider>
-    </Router>
-    </UserAuthContextProvider>
+        <Router>
+          <ThemeContext.Provider value={{ darkMode, setDarkMode }}>
+            <StockContext.Provider value={{ stockSymbol, setStockSymbol }}>
+              <Routes>
+                <Route path='/' element={<HomeScreen />}>
+                  <Route path='/' element={<StockList />} />
+                  <Route path='/news' element={<News />} />
+                  <Route path='/:symbol' element={<Dashboard />} />
+                  <Route path='/news/:symbol' element={<CompanyNews />} />
+                  <Route path='/watchlist' element={<ProtectedRoute><WatchList /></ProtectedRoute>} />
+                </Route>
+                <Route path='/login' element={<LoginForm />} />
+                <Route path='/register' element={<Register />} />
+                {/* Define your routes */}
+              </Routes>
+            </StockContext.Provider>
+          </ThemeContext.Provider>
+        </Router>
+      </UserAuthContextProvider>
     </Provider>
   );
 }

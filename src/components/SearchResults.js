@@ -3,13 +3,12 @@ import StockContext from '../context/StockContext';
 import ThemeContext from '../context/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 
-const SearchResults = ({ results,clear }) => {
-
+const SearchResults = ({ results, clear }) => {
   const { darkMode } = useContext(ThemeContext);
 
   const { setStockSymbol } = useContext(StockContext);
 
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   return (
     <ul
@@ -27,9 +26,9 @@ const SearchResults = ({ results,clear }) => {
               darkMode ? 'hover:bg-indigo-600' : 'hover:bg-indigo-200 '
             } transition duration-300`}
             onClick={() => {
-              setStockSymbol(item['1. symbol'])
-              clear()
-              navigate(`/${item['1. symbol']}`)
+              setStockSymbol(item['1. symbol']);
+              clear();
+              navigate(`/${item['1. symbol']}`);
             }}
           >
             <span>{item['1. symbol']}</span>

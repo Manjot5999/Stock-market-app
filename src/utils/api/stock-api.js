@@ -1,3 +1,4 @@
+import axios from 'axios';
 const basePath = 'https://finnhub.io/api/v1';
 
 /**
@@ -74,4 +75,23 @@ export const fetchHistoricalData = async (
   }
 
   return await response.json();
+};
+
+export const fetchData = async (params) => {
+  const options = {
+    method: 'GET',
+    url: 'https://alpha-vantage.p.rapidapi.com/query',
+    params,
+    headers: {
+      'X-RapidAPI-Key': 'f9d51eb4c1msh746def5b941ab61p1d0b35jsn7b4baec83951',
+      'X-RapidAPI-Host': 'alpha-vantage.p.rapidapi.com'
+    }
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+  }
 };
