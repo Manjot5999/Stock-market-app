@@ -51,7 +51,7 @@ const Search = () => {
       const symbol = bestMatches.filter(item => item['4. region'] === 'United States');
       setStockSymbol(symbol[0]['1. symbol']);
       clear();
-      navigate(`/${symbol[0]['1. symbol']}`);
+      navigate(`/?search=${symbol[0]['1. symbol']}`);
     }
   };
 

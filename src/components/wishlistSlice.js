@@ -27,7 +27,6 @@ const cartSlice = createSlice({
       state.items.pop();
     },
     initializeState: (state, action) => {
-      console.log('hello');
       state.items = action.payload;
     }
   }

@@ -15,6 +15,7 @@ import store from './components/store';
 import WatchList from './components/WatchList';
 import CompanyNews from './components/CompanyNews';
 import ProtectedRoute from './components/ProtectedRoute';
+import Filters from './components/Filters';
 
 function App () {
   const [darkMode, setDarkMode] = useState(false);
@@ -45,6 +46,7 @@ function App () {
         </Router>
       </UserAuthContextProvider>
     </Provider>
+    // <Filters />
   );
 }
 

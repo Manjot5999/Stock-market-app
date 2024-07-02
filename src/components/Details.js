@@ -8,6 +8,7 @@ import AlertBox from './AlertBox';
 
 const Details = ({ details }) => {
   const { user } = useUserAuth();
+  console.log(user)
 
   const { darkMode } = useContext(ThemeContext);
 
@@ -20,7 +21,6 @@ const Details = ({ details }) => {
 
   if (user) {
     const userInfo = store.filter((item) => item.Email.toLowerCase() === user.email.toLowerCase());
-    console.log('userInfo', userInfo);
     id = userInfo[0].id;
     WishList = userInfo[0].Wishlist;
   }
@@ -33,6 +33,7 @@ const Details = ({ details }) => {
       if (!isStockAlreadyAdded) {
         const updatedWishlist = [...WishList, stockToAdd];
         dispatch(updateItemasync(id, { Wishlist: updatedWishlist }));
+        alert('Stock Added')
       } else {
         alert('Stock is already in your watchlist.');
       }

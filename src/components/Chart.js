@@ -30,6 +30,7 @@ const Chart = () => {
 
   async function getData (params) {
     const res = await fetchData(params);
+    
     let count = 0;
     const lastFiveEntries = [];
     const category = {
@@ -40,7 +41,7 @@ const Chart = () => {
     const obj = filter === '1M' ? res['Monthly Time Series'] : res[`Time Series (${category[filter]})`];
     for (const key in obj) {
       if (count >= 5) {
-        break; // We only want the last five entries.
+        break; 
       }
       lastFiveEntries.push({
         date: filter === '1D' ? key.substring(11, 19) : key,
@@ -48,8 +49,8 @@ const Chart = () => {
       });
       count++;
     }
-    console.log(lastFiveEntries);
-    console.log(filter);
+    console.log('last five entries',lastFiveEntries)
+   
     if (filter === '1D') {
       setData({
         dailyData: lastFiveEntries,
@@ -70,6 +71,8 @@ const Chart = () => {
       });
     }
   }
+
+  
   useEffect(() => {
     let params;
     if (filter === '1D') {
@@ -100,6 +103,8 @@ const Chart = () => {
 
   return (
     <Card>
+
+      {/* Filters rendering logic */}
       <ul className='flex absolute top-2 right-2 z-40'>
         {Object.keys(chartConfig).map((item) => (
           <li key={item}>
@@ -113,6 +118,10 @@ const Chart = () => {
           </li>
         ))}
       </ul>
+
+
+      {/* Graph rendering logic */}
+
       <ResponsiveContainer width='100%' height={400}>
         <AreaChart data={(filter === '1D' && data.dailyData) || (filter === '1W' && data.weeklyData) || (filter === '1M' && data.monthlyData)}>
           <defs>

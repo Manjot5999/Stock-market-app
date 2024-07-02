@@ -34,16 +34,8 @@ const Dashboard = () => {
     }
   };
   useEffect(() => {
-    let isMounted = true;
-
-    if (isMounted) {
       updateStockDetails();
-      updateStockOverview();
-    }
-
-    return () => {
-      isMounted = false;
-    };
+      updateStockOverview();  
   }, [symbol]);
 
   return (
